@@ -253,6 +253,8 @@ open(unit=30, file='output/timestep', &
 frnum_init = frnum
 inquire(iolength=record_length) dummy
 
+
+! Specify output files for different parameters (and up to 7 species)
 do I = 1, 15
 
    if ( I == 1 ) template = 'output/data/frame'
@@ -372,7 +374,7 @@ endif
 ! Set the ammount of drag of angular momentum per timestep
 ! with drag_factor = 0.01 the system will lose 1% of its 
 ! angular momentum per orbit
-drag_factor = 1.0e-2
+drag_factor = reallyadrag !1.0e-2
 
 !TIMING 
 time1 = mpi_wtime()
@@ -442,7 +444,7 @@ do tstep = tstart, tstop          ! Start timestep loop
 
    dt = 2.0*dt
 
-   if ( time / cirp >= 2.0 ) then
+   if ( time / cirp >= dragtime ) then
       drag_factor = 0.0
    endif
 

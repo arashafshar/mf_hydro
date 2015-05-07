@@ -136,22 +136,22 @@ do L = philwb, phiupb
                  (rho(J,K,L)*(r(J) + 0.25*dr) +              &
                   rho(J-1,K,L)*(r(J) - 0.25*dr) )
          if( rhjkl > 0.0 ) then
-	    u(J,K,L) = s(J,K,L) / rhjkl
+            u(J,K,L) = s(J,K,L) / rhjkl
             if( rhjkl >= den_cutoff ) then
-	       if( abs(u(J,K,L)) >= vmax ) then
-	          u(J,K,L) = sign(vmax,u(J,K,L))
+                if( abs(u(J,K,L)) >= vmax ) then
+                  u(J,K,L) = sign(vmax,u(J,K,L))
                   s(J,K,L) = u(J,K,L) * rhjkl
-	       endif
-	    else
-	       if( abs(u(J,K,L)) >= vlim ) then
-	          u(J,K,L) = sign(vlim,u(J,K,L))
-	          s(J,K,L) = u(J,K,L) * rhjkl
-	       endif
+                endif
+            else
+                if( abs(u(J,K,L)) >= vlim ) then
+                  u(J,K,L) = sign(vlim,u(J,K,L))
+                  s(J,K,L) = u(J,K,L) * rhjkl
+                endif
             endif
-	 else
-	    u(J,K,L) = 0.0
-	    s(J,K,L) = 0.0
-	 endif
+         else
+            u(J,K,L) = 0.0
+            s(J,K,L) = 0.0
+         endif
       enddo
    enddo
 enddo
@@ -163,21 +163,21 @@ do L = philwb, phiupb
          rhjkl = 0.5 * (rho(J,K,L) + rho(J,K-1,L))
          if( rhjkl > 0.0 ) then
             w(J,K,L) = t(J,K,L) / rhjkl
-	    if( rhjkl > den_cutoff ) then
-	       if( abs(w(J,K,L)) >= 1.0 ) then
-	          w(J,K,L) = sign(1.0,w(J,K,L))
-		  t(J,K,L) = w(J,K,L) * rhjkl
-	       endif
-	    else
-	       if( abs(w(J,K,L)) >= vlim ) then
-	          w(J,K,L) = sign(vlim,w(J,K,L))
-	          t(J,K,L) = w(J,K,L) * rhjkl
-	       endif
-	    endif
-	 else
-	    w(J,K,L) = 0.0
-	    t(J,K,L) = 0.0
-	 endif
+            if( rhjkl > den_cutoff ) then
+               if( abs(w(J,K,L)) >= 1.0 ) then
+                  w(J,K,L) = sign(1.0,w(J,K,L))
+                  t(J,K,L) = w(J,K,L) * rhjkl
+               endif
+            else
+               if( abs(w(J,K,L)) >= vlim ) then
+                  w(J,K,L) = sign(vlim,w(J,K,L))
+                  t(J,K,L) = w(J,K,L) * rhjkl
+               endif
+            endif
+         else
+            w(J,K,L) = 0.0
+            t(J,K,L) = 0.0
+         endif
       enddo
    enddo
 enddo
@@ -188,22 +188,22 @@ do L = philwb+1, phiupb
       do J = rlwb, rupb
          rhjkl = 0.5 * (rho(J,K,L) + rho(J,K,L-1))
          if( rhjkl > 0.0 ) then
-	    jn(J,K,L) = a(J,K,L) / rhjkl
-	    if( rhjkl > den_cutoff ) then
-	       if( abs(jn(J,K,L))*rhfinv(J) >= vmax ) then
-	          jn(J,K,L) = rhf(J) * sign(vmax,jn(J,K,L))
-		  a(J,K,L) = jn(J,K,L) * rhjkl
-	       endif
-	    else
-	       if( abs(jn(J,K,L))*rhfinv(J) >= vlim ) then
-	          jn(J,K,L) = rhf(J) * sign(vlim,jn(J,K,L))
-	       a(J,K,L) = jn(J,K,L) * rhjkl
-	       endif
-	    endif
-	 else
-	    jn(J,K,L) = 0.0
-	    a(J,K,L) = 0.0
-	 endif
+            jn(J,K,L) = a(J,K,L) / rhjkl
+            if( rhjkl > den_cutoff ) then
+               if( abs(jn(J,K,L))*rhfinv(J) >= vmax ) then
+                  jn(J,K,L) = rhf(J) * sign(vmax,jn(J,K,L))
+                  a(J,K,L) = jn(J,K,L) * rhjkl
+               endif
+            else
+               if( abs(jn(J,K,L))*rhfinv(J) >= vlim ) then
+                  jn(J,K,L) = rhf(J) * sign(vlim,jn(J,K,L))
+               a(J,K,L) = jn(J,K,L) * rhjkl
+               endif
+            endif
+         else
+            jn(J,K,L) = 0.0
+            a(J,K,L) = 0.0
+         endif
       enddo
    enddo
 enddo

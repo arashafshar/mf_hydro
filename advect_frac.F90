@@ -179,7 +179,7 @@ do L = philwb, phiupb
    do K = zlwb, zupb
       do J = rlwb-1, rupb
          transu(J,K,L) = 0.5 * ar_fc_r(J) *           &
-	                 ( u(J,K,L) + u(J+1,K,L) )
+                         ( u(J,K,L) + u(J+1,K,L) )
       enddo
    enddo
 enddo
@@ -190,7 +190,7 @@ do L = philwb, phiupb
    do K = zlwb-1, zupb
       do J = rlwb, rupb
          transw(J,K,L) = 0.5 * az_fc_r(J) *           &
-	                 ( w(J,K+1,L) + w(J-1,K+1,L) )
+                         ( w(J,K+1,L) + w(J-1,K+1,L) )
       enddo
    enddo
 enddo
@@ -201,8 +201,8 @@ do L = philwb, phiupb-1
    do K = zlwb, zupb
       do J = rlwb, rupb
          transv(J,K,L) = 0.5 * aphi_fc_r *              &
-	                 ( rhfinv(J) * jn(J,K,L+1) +    &
-			   rhfinv(J-1) * jn(J-1,K,L+1) )
+                         ( rhfinv(J) * jn(J,K,L+1) +    &
+                           rhfinv(J-1) * jn(J-1,K,L+1) )
       enddo
    enddo
 enddo
@@ -210,7 +210,7 @@ do K = zlwb, zupb
    do J = rlwb, rupb
       transv(J,K,phiupb) = 0.5 * aphi_fc_r *              &
                           ( rhfinv(J) * jn(J,K,philwb) +  &
-			    rhfinv(J-1) * jn(J-1,K,philwb) )
+                            rhfinv(J-1) * jn(J-1,K,philwb) )
    enddo
 enddo
 
@@ -219,8 +219,8 @@ enddo
 if( iam_on_edge ) then
    do L = philwb, phiupb
       do K = zlwb, zupb
-	 transu(rupb,K,L) = 0.5 * ( abs(transu(rupb,K,L))  &
-	                              + transu(rupb,K,L) )
+         transu(rupb,K,L) = 0.5 * ( abs(transu(rupb,K,L))  &
+                                      + transu(rupb,K,L) )
       enddo
    enddo
 endif
@@ -230,8 +230,8 @@ endif
 if( iam_on_top ) then
    do L = philwb, phiupb
       do J = rlwb, rupb
-	 transw(J,zupb,L) = 0.5 * ( abs(transw(J,zupb,L)) + &
-	                                transw(J,zupb,L) )
+         transw(J,zupb,L) = 0.5 * ( abs(transw(J,zupb,L)) + &
+                                        transw(J,zupb,L) )
       enddo
    enddo
 endif
@@ -241,8 +241,8 @@ endif
 if( iam_on_bottom .and. isym == 1 ) then
    do L = philwb, phiupb
       do J = rlwb, rupb
-	 transw(J,zlwb-1,L) = 0.5 * ( abs(transw(J,zlwb-1,L)) -  &
-	                                  transw(J,zlwb-1,L) )
+         transw(J,zlwb-1,L) = 0.5 * ( abs(transw(J,zlwb-1,L)) -  &
+                                          transw(J,zlwb-1,L) )
       enddo
    enddo
 endif
@@ -263,24 +263,24 @@ if( advect_time == 1 ) then
    do L = philwb, phiupb
       do K = zlwb, zupb
          do J = rlwb, rupb
-	    rettot(J,K,L) = retflx(J,K,L)
-	 enddo
+            rettot(J,K,L) = retflx(J,K,L)
+         enddo
       enddo
    enddo
    call flux(s,qk,transw,dt,volinv_fc_r,2,retflx)
    do L = philwb, phiupb
       do K = zlwb, zupb
          do J = rlwb, rupb
-	    rettot(J,K,L) = rettot(J,K,L) + retflx(J,K,L)
-	 enddo
+            rettot(J,K,L) = rettot(J,K,L) + retflx(J,K,L)
+         enddo
       enddo
    enddo
    call flux(s,ql,transv,dt,volinv_fc_r,3,retflx)
    do L = philwb, phiupb
       do K = zlwb, zupb
          do J = rlwb, rupb
-	    s(J,K,L) = s(J,K,L) + rettot(J,K,L) + retflx(J,K,L)
-	 enddo
+            s(J,K,L) = s(J,K,L) + rettot(J,K,L) + retflx(J,K,L)
+         enddo
       enddo
    enddo
 else
@@ -289,8 +289,8 @@ else
    do L = philwb, phiupb
       do K = zlwb, zupb
          do J = rlwb, rupb
-	    rettot(J,K,L) = retflx(J,K,L)
-	 enddo
+            rettot(J,K,L) = retflx(J,K,L)
+         enddo
       enddo
    enddo
    call flux(s1,qk,transw,dt,volinv_fc_r,2,retflx)
@@ -298,15 +298,15 @@ else
       do K = zlwb, zupb
          do J = rlwb, rupb
             rettot(J,K,L) = rettot(J,K,L) + retflx(J,K,L)
-	 enddo
+         enddo
       enddo
    enddo
    call flux(s1,ql,transv,dt,volinv_fc_r,3,retflx)
    do L = philwb, phiupb
       do K = zlwb, zupb
          do J = rlwb, rupb
-	    s(J,K,L) = s1(J,K,L) + rettot(J,K,L) + retflx(J,K,L)
-	 enddo
+            s(J,K,L) = s1(J,K,L) + rettot(J,K,L) + retflx(J,K,L)
+         enddo
       enddo
    enddo
 endif
@@ -322,7 +322,7 @@ do L = philwb, phiupb
    do K = zlwb, zupb
       do J = rlwb-1, rupb
          transu(J,K,L) = 0.5 * ar_fc_z(J) *                     &
-	                 ( u(J+1,K,L) + u(J+1,K-1,L) )
+                         ( u(J+1,K,L) + u(J+1,K-1,L) )
       enddo
    enddo
 enddo

@@ -136,7 +136,7 @@ do L = philwb, phiupb
          frac1(J,K,L) = 0.0
          frac2(J,K,L) = 0.0
          if( rho(J,K,L) > 10.0 * densmin ) then
-            if( rhf(J) * cos_cc(L) > 0.1181 ) then
+            if( rhf(J) * cos_cc(L) > separator ) then
                frac1(J,K,L) = 1.0
             else
                frac2(J,K,L) = 1.0
@@ -153,7 +153,7 @@ do L = philwb, phiupb
          do I = 1, num_species
             species(J,K,L,I) = 0.0
          enddo 
-         if ( rhf(J) * cos_cc(L) > 0.1181 ) then
+         if ( rhf(J) * cos_cc(L) > separator ) then
             if ( rho(J,K,L) > 1.0e-1 ) then
                species(J,K,L,1) = 1.0
             endif
@@ -194,7 +194,7 @@ temp = gamma - 1.0
 do L = philwb, phiupb
    do K = zlwb-1, zupb+1
       do J = rlwb-1, rupb+1
-         if( rhf(J) * cos_cc(L) >= 0.1181 ) then
+         if( rhf(J) * cos_cc(L) >= separator ) then
            eps(J,K,L) = (kappa2 * rho(J,K,L)**(1.0/pin))/temp
          else
            eps(J,K,L) = (kappa1 * rho(J,K,L)**(1.0/pin))/temp

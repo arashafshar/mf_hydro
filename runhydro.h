@@ -2,6 +2,9 @@
        integer, parameter :: numz = 98
        integer, parameter :: numphi = 256
        integer, parameter :: oldnumr = 130
+       double precision, parameter :: reallyadrag =  1.0e-2 !% of AM removed/orbit
+       double precision, parameter :: dragtime = 2.0 !number of orbits
+       double precision, parameter :: separator = 0.1  !-ve of CoM of the SCF
 
        integer, parameter :: numr_procs = 8
        integer, parameter :: numz_procs = 8
