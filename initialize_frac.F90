@@ -105,6 +105,9 @@ common /timestep/ dt, time, dt_visc, tstep
 real :: pin, gamma, kappa1, kappa2, gammainv
 common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
 
+real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2   !bipoly 
+common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2
+
 real :: densmin, taumin, vmax, constp
 common /limits/ densmin, taumin, vmax, constp
 
@@ -264,6 +267,15 @@ gamma = 0.0
 kappa1 = 0.0
 kappa2 = 0.0
 gammainv = 0.0
+
+kappac1 = 0.0      !bipoly
+kappac2 = 0.0
+rho_c1 = 0.0
+rho_c2 = 0.0            
+np1 = 0.0               
+np2 = 0.0 
+gamma1 = 0.0
+gamma2 = 0.0
 
 densmin = 0.0
 taumin = 0.0

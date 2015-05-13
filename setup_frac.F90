@@ -85,6 +85,9 @@ common /timestep/ dt, time, dt_visc, tstep
 real :: pin, gamma, kappa1, kappa2, gammainv 
 common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
 
+real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2   !bipoly 
+common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2
+
 integer :: isoadi, call_pot, zero_out
 common /flags/ isoadi, call_pot, zero_out
 
@@ -171,7 +174,7 @@ integer :: record_length
 
 integer, dimension(8) :: init_int
 
-real, dimension(14) :: init_real
+real, dimension(20) :: init_real       !bipoly
 
 character(len=150) :: conts_template
 character(len=150) :: conts8_file
@@ -197,13 +200,34 @@ character(len=150) :: conts8_file
 !                       self-gravity		for all k and l
 !                       potential of fluid
 !
-!  pin		gamma		kappa1		kappa2 
-!  polytropic   polytropic 	polytropic 	polytropic
-!  index	exponent	constant for	constant for
-!                               0 <= phi <	pi/2 <= phi <
-!                               pi/2 and        3 pi/2
-!                               3 pi/2 <=
-!                               phi < 0
+!  pin                  gamma            
+!  polytropic           polytropic      
+!  index                exponent        
+!                                                            
+!
+! kappa1                        kappa2                        !bipoly 
+! polytropic constant for       polytropic constant for 
+! 0 <= phi < pi/2               pi/2 <= phi < 3 pi/2
+! 3 pi/2 <= phi < 0       
+!
+!                               
+! kappac1                       kappac2 
+! polytropic constant for       polytropic constant for 
+! the core                      the core
+! 0 <= phi < pi/2               pi/2 <= phi < 3 pi/2
+! 3 pi/2 <= phi < 0     
+!
+!
+! rho_c1                        rho_c2
+! threshold density above       threshold density above
+! which the material            which the material
+! belongs to the core for       belongs to the core for
+! star1                         star2
+!       
+!
+!  np1                          np2 
+!  Structural polytropic        Structural polytropic
+!  indx of both the core        indx of both the envelopes
 !
 !  omgfrm		intrvl			scfomega
 !  angular frequency	number of frames to	angular frequency of
@@ -264,20 +288,28 @@ conts_template = 'input/conts/fort.12.865000.'
 if( iam_root ) then
    open(unit=20, file='run/fort.7', &
         form='formatted' ,status='old')
+
    read(20,*) init_int(1:2)
-   read(20,*) init_int(3:5) 
+   read(20,*) init_int(3:5)
    read(20,*) init_int(6:8)
-   read(20,*) init_real(1:4)
+
+   read(20,*) init_real(1:2)          !bipoly
+   read(20,*) init_real(3:4)
+   read(20,*) init_real(15:16)
+   read(20,*) init_real(17:18)
+   read(20,*) init_real(19:20)
+
    read(20,*) init_real(5:7)
    read(20,*) init_real(8:9)
    read(20,*) init_real(10:11)
-   read(20,*) boundary_condition(1:3) 
+   read(20,*) boundary_condition(1:3)
    read(20,*) init_real(12:14)
+
    close(20)
 endif
 
 call mpi_bcast(init_int,8,INT_SIZE,root,MPI_COMM_WORLD,ierror)
-call mpi_bcast(init_real,14,REAL_SIZE,root,MPI_COMM_WORLD,ierror)
+call mpi_bcast(init_real,20,REAL_SIZE,root,MPI_COMM_WORLD,ierror)   !bipoly
 call mpi_bcast(boundary_condition,3,INT_SIZE,root,MPI_COMM_WORLD,ierror)
 
 
@@ -289,10 +321,18 @@ do_diag = init_int(5)
 isoadi = init_int(6)
 call_pot = init_int(7)
 zero_out = init_int(8)
-pin = init_real(1)
+
+pin = init_real(1)     !bipoly
 gamma = init_real(2)
 kappa1 = init_real(3)
 kappa2 = init_real(4)
+kappac1 = init_real(15)
+kappac2 = init_real(16)
+rho_c1 = init_real(17)
+rho_c2 = init_real(18)
+np1 = init_real(19)
+np2 = init_real(20)
+
 omega_frame = init_real(5)
 intrvl = init_real(6)
 scf_omega = init_real(7)
@@ -312,6 +352,8 @@ cfl_factor = 0.5
 vlim_factor = 0.5
 den_cutoff = 5.0e3 * densmin
 gammainv = 1.0 / gamma
+gamma1 = 1.0 + 1.0/np1        !bipoly
+gamma2 = 1.0 + 1.0/np2
 
 !  if running with pi or equaorial symmetry then the boundary
 !  condition at the bottom of the grid has to be a wall
@@ -334,7 +376,7 @@ endif
 ! >>>NOTE<<< the - 3 part comes from getting agreement from scf
 !            code and hydrocode.  if numr  = 128 in the scf code
 !            that translates to numr = 130 in the hydrocode
-dr = 1.0 / (oldnumr - 3.0)
+dr = 1.0 / (oldnumr - deltar_parameter)
 dz = dr
 dphi = 2.0 * pi * numphiinv
 drinv = 1.0 / dr
@@ -556,6 +598,10 @@ if( iam_root ) then
    write(6,*)
 
    write(6,170) pin, gamma, kappa1, kappa2
+
+   write(6,*) kappac1, kappac2, rho_c1, rho_c2
+
+   write(6,*) np1, np2, gamma1, gamma2    !bipoly
 
    write(6,180) densmin, taumin, constp
  

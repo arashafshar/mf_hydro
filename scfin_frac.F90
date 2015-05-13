@@ -23,9 +23,6 @@ include 'runhydro.h'
 !           from upper half space to lower half space would be
 !           too big a pain in the neck
 !
-!  5/17/2000 modified to set up the fluid's mass fraction array 
-!  for an initial model.  The fluid is all star1 if it is left
-!  of x = 0.1 initially... hard coded and stupid.
 !*
 !***********************************************************************
 !*
@@ -56,6 +53,9 @@ common /trig/ cos_cc, sin_cc, cos_vc, sin_vc
 
 real :: pin, gamma, kappa1, kappa2, gammainv
 common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
+
+real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2   !bipoly 
+common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2
 
 real :: densmin, taumin, vmax, constp
 common /limits/ densmin, taumin, vmax, constp
@@ -124,12 +124,8 @@ close(21)
 close(22)
 close(23)
 
-! 10/08/2003 : Modified x to -0.2
+
 ! set up the mass fraction array
-!
-! if fluid is of density greater then 10 times the vacuum level 
-! and is to the left of x = -0.2 then call it fluid of type 1
-!
 do L = philwb, phiupb
    do K = zlwb-1, zupb+1
       do J = rlwb-1, rupb+1
@@ -154,28 +150,20 @@ do L = philwb, phiupb
             species(J,K,L,I) = 0.0
          enddo 
          if ( rhf(J) * cos_cc(L) > separator ) then
-            if ( rho(J,K,L) > 1.0e-1 ) then
+            if ( rho(J,K,L) > rho_c1 ) then
                species(J,K,L,1) = 1.0
-            endif
-            if ( rho(J,K,L) > 1.0e-3 .and. rho(J,K,L) <= 1.0e-1 ) then
+            else
                species(J,K,L,2) = 1.0
             endif
-            if ( rho(J,K,L) > 1.0e-6 .and. rho(J,K,L) <= 1.0e-3 ) then
-               species(J,K,L,3) = 1.0
-            endif
          else
-            if ( rho(J,K,L) > 1.0e-1 ) then
+            if ( rho(J,K,L) > rho_c2 ) then
+               species(J,K,L,3) = 1.0
+            else
                species(J,K,L,4) = 1.0
-            endif
-            if ( rho(J,K,L) > 1.0e-3 .and. rho(J,K,L) <= 1.0e-1 ) then
-               species(J,K,L,5) = 1.0
-            endif
-            if ( rho(J,K,L) > 1.0e-6 .and. rho(J,K,L) <= 1.0e-3 ) then
-               species(J,K,L,6) = 1.0
             endif
          endif
          if ( rho(J,K,L) <= 1.0e-6 ) then
-            species(J,K,L,7) = 1.0
+            species(J,K,L,5) = 1.0
          endif
       enddo
    enddo
@@ -191,17 +179,64 @@ enddo
 !
 temp = gamma - 1.0
 
-do L = philwb, phiupb
-   do K = zlwb-1, zupb+1
-      do J = rlwb-1, rupb+1
-         if( rhf(J) * cos_cc(L) >= separator ) then
-           eps(J,K,L) = (kappa2 * rho(J,K,L)**(1.0/pin))/temp
-         else
-           eps(J,K,L) = (kappa1 * rho(J,K,L)**(1.0/pin))/temp
-         endif
+!do L = philwb, phiupb            !old
+!   do K = zlwb-1, zupb+1
+!      do J = rlwb-1, rupb+1
+!         if( rhf(J) * cos_cc(L) >= separator ) then
+!           eps(J,K,L) = (kappa2 * rho(J,K,L)**(1.0/pin))/temp
+!         else
+!           eps(J,K,L) = (kappa1 * rho(J,K,L)**(1.0/pin))/temp
+!         endif
+!      enddo
+!   enddo
+!enddo
+
+   do L = philwb, phiupb            !bipoly
+      do K = zlwb-1, zupb+1
+         do J = rlwb-1, rupb+1
+            if( rhf(J) * cos_cc(L) >= separator ) then
+               if (rho(j,k,l).gt.rho_c1) then
+                  eps(J,K,L) = (kappac1 * rho(J,K,L)**(1.0/np1))/temp
+               else
+                  eps(J,K,L) = (kappa1 * rho(J,K,L)**(1.0/np2))/temp
+               endif
+            else
+               if (rho(j,k,l).gt.rho_c2) then
+                  eps(J,K,L) = (kappac2 * rho(J,K,L)**(1.0/np1))/temp
+               else
+                  eps(J,K,L) = (kappa2 * rho(J,K,L)**(1.0/np2))/temp
+               endif
+            endif
+         enddo
       enddo
    enddo
-enddo
+
+
+if( iam_root ) then
+open(unit=76, file='output/test.out', &
+     form='formatted',status='unknown', position='append')
+
+write(76,*) "temp", temp
+write(76,*) "rho_c1", rho_c1
+write(76,*) "rho_c2",rho_c2
+write(76,*) "kappa1",kappa1
+write(76,*) "kappa2",kappa2
+write(76,*) "kappac1",kappac1
+write(76,*) "kappac2",kappac2
+write(76,*) "np1",np1
+write(76,*) "np2",np2
+write(76,*) "gamma",gamma
+write(76,*) "gamma1",gamma1
+write(76,*) "gamma2",gamma2
+
+!write(76,*) "temp", temp, "temp1",temp1, "temp2",temp2
+!write(76,*) "eps(J,K,L) = (kappac1 * 0.9**(1.0/np1))/temp1 = ",(kappac1 *
+!0.9**(1.0/np1))/temp1
+!write(76,*) "eps(J,K,L) = (1.6e-2 * 0.9**(1.0/pin))/temp = ", (1.6e-2 *
+!0.9**(1.0/pin))/temp
+
+close(76)
+endif
 
 ! now convert eps to be the entropy tracer, tau
 ! 
