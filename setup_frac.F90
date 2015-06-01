@@ -280,8 +280,7 @@ record_length = 0
 init_int = 0
 init_real = 0.0
 
-conts_template = 'input/conts/fort.12.865000.'
-!conts_template = 'input/conts/fort.12.'
+ conts_template = 'input/conts/fort.12.925000.'
 
 !  Have root read the fort.7 file into arrays and then broadcast
 !  those arrays to all other pe's
@@ -658,8 +657,7 @@ else if(  model_type == 1 )  then
     close(8)
    
    if( iam_root ) then
-     open(unit=9, file='input/conts/fort.13.865000', &
-     !open(unit=9, file='input/conts/fort.13', &
+ open(unit=9, file='input/conts/fort.13.925000', &
            form='unformatted', status='old')
       read(9) time, frnum, phi_com, R_com, com, v_com, a_com, cylin_a_com,  &
               cylin_v_com, delt
