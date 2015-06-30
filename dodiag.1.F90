@@ -169,6 +169,8 @@ integer, dimension(numr_dd,numz_dd,numphi) :: mask
 
 integer, dimension(3) :: irholoc1, irholoc2
 
+real :: mi1, mi2
+
 #ifdef SHORT
 integer*8 :: ierror
 #else
@@ -465,16 +467,16 @@ if( iam_on_edge ) then
                mass_boundary = mass_boundary + rhf(J)*rho(J,K,L)
             enddo
          enddo
-      enddo	
+      enddo
    else 
       do L = philwb, phiupb
          do K = zlwb, zupb
             do J = rupb, rupb+1
                mass_boundary = mass_boundary + rhf(J)*rho(J,K,L)
-            enddo	
+            enddo
          enddo
       enddo 
-   endif	
+   endif
 endif 
 
 diag_sum(4) = factor * mass_boundary
@@ -536,8 +538,8 @@ do L = philwb, phiupb
                cycle
             else if( rho_diag(J,K,L) > rho5 ) then
                vol1(5) = vol1(5) + rhf(J)
-            endif	
-         endif	
+            endif
+         endif
       enddo
    enddo
 enddo
@@ -769,6 +771,10 @@ star2comin(3) = star2com(3)
 ! have the center of mass coordinates for each star, ready to
 ! calculate the spin angular momentum
 call diag_spins(factor,star1com,star2com,spin_star1,spin_star2,mask)
+
+!------------------------------------------------------------------------------
+! calculate the  moment of inertia for each star wrt their CoM
+call diag_mi(factor,star1com,star2com,mi1,mi2,mask)
       
 !------------------------------------------------------------------------------
 ! calclate momments of the density field
@@ -787,7 +793,8 @@ if( iam_root ) then
                    rhomax1, rhomax2, rholoc1, rholoc2, irholoc1,        &
                    irholoc2, etot1, etot2, ntot1, ntot2, lpoints,       &
                    roche_vol1, roche_vol2, diag_summed, spin_star1,     &
-                   spin_star2, mom1, mom2, ilm, star1com, star2com)
+                   spin_star2, mom1, mom2, ilm, star1com, star2com,     &
+                   mi1, mi2)
 endif 
           
 return

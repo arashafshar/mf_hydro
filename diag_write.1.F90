@@ -8,7 +8,7 @@ subroutine diag_write(mtot, syscom, syscomin, star1comin,               &
                       rholoc2, irholoc1, irholoc2, etot1,               &
                       etot2, ntot1, ntot2, lpoints, roche_vol1,         &
                       roche_vol2, diag_sum, spin_star1, spin_star2,     &
-                      mom1, mom2, ilm, star1com, star2com)
+                      mom1, mom2, ilm, star1com, star2com, mi1, mi2)
 implicit none
 include 'runhydro.h'
 !************************************************************************
@@ -160,7 +160,7 @@ real, dimension(3) :: syscom, syscomin, star1comin, star2comin,       &
                       rholoc1, rholoc2, star1com, star2com
 
 real :: mtot, rhomax1, rhomax2, etot1, etot2, ntot1, ntot2,           &
-        roche_vol1, roche_vol2, spin_star1, spin_star2
+        roche_vol1, roche_vol2, spin_star1, spin_star2, mi1, mi2
 
 integer, dimension(3) :: irholoc1, irholoc2
 
@@ -210,7 +210,7 @@ write(6,100) tstep, time/cirp, dt, diag_sum(24), diag_sum(26),       &
              diag_sum(27), diag_sum(28)
 
 write(6,110) diag_sum(25), spin_star1, spin_star2, diag_sum(21),     &
-             diag_sum(22), diag_sum(23)
+             diag_sum(22), diag_sum(23), mi1, mi2
 
 write(6,120) diag_sum(1), diag_sum(2), diag_sum(3), diag_sum(4),     &
              diag_sum(1)+diag_sum(2)+diag_sum(3)+diag_sum(4),        &
