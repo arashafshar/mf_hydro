@@ -23,7 +23,8 @@ real, dimension(numr_dd,numz_dd,numphi) :: u, w, jn
 common /velocities/ u, w, jn
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 !*
 !************************************************************************* 
@@ -62,6 +63,9 @@ call output_kernel(u, record_number, 55 )
 call output_kernel(w, record_number, 56 )
 
 call output_kernel(jn, record_number, 57 )
+
+call output_kernel(gammaeff, record_number, 58 )
+
 
 do M = 1, num_species
    call output_kernel(species(:,:,:,M), record_number, 60 + M - 1)

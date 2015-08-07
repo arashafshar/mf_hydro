@@ -49,7 +49,8 @@ real, dimension(numr_dd, numz_dd, numphi) :: s, t, a
 common /kinematic/     s, t, a 
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 real :: phi_com, R_com, R_com_inv
 real, dimension(3,3) :: com

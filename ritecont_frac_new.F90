@@ -59,7 +59,8 @@ real, dimension(numr_dd, numz_dd, numphi) :: temps, tempa
 common /source_temp/ temps, tempa
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 real :: dt, time, dt_visc
 integer :: tstep

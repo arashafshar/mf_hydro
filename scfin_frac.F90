@@ -41,7 +41,8 @@ real, dimension(numr_dd,numz_dd,numphi) :: p, tau
 common /thermo/ p, tau
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 real, dimension(numr_dd) :: rhf, r, rhfinv, rinv
 real, dimension(numz_dd) :: zhf
@@ -54,8 +55,10 @@ common /trig/ cos_cc, sin_cc, cos_vc, sin_vc
 real :: pin, gamma, kappa1, kappa2, gammainv
 common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
 
-real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2   !bipoly 
-common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2
+real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2  !bipoly 
+real, dimension(num_species) :: gammainit
+common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, &
+       gamma2, gammainit
 
 real :: densmin, taumin, vmax, constp
 common /limits/ densmin, taumin, vmax, constp
@@ -123,6 +126,14 @@ read(23,rec=iam+1) s
 close(21)
 close(22)
 close(23)
+
+
+! Set up gamma array for each species
+gammainit(1)=gamma1
+gammainit(2)=gamma2
+gammainit(3)=gamma1
+gammainit(4)=gamma2
+gammainit(5)=gamma1
 
 
 ! set up the mass fraction array

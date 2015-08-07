@@ -255,23 +255,22 @@ inquire(iolength=record_length) dummy
 
 
 ! Specify output files for different parameters (and up to 7 species)
-do I = 1, 15
+do I = 1, 14
 
-   if ( I == 1 ) template = 'output/data/frame'
+   if ( I == 1 ) template = 'output/data/frame.'
    if ( I == 2 ) template = 'output/data/frac1.'
    if ( I == 3 ) template = 'output/data/frac2.'
-   if ( I == 4 ) template = 'output/data/tau'
-   if ( I == 5 ) template = 'output/data/pot'
-   if ( I == 6 ) template = 'output/data/velr'
-   if ( I == 7 ) template = 'output/data/velz'
-   if ( I == 8 ) template = 'output/data/velphi'
+   if ( I == 4 ) template = 'output/data/tau.'
+   if ( I == 5 ) template = 'output/data/pot.'
+   if ( I == 6 ) template = 'output/data/velr.'
+   if ( I == 7 ) template = 'output/data/velz.'
+   if ( I == 8 ) template = 'output/data/velphi.'
    if ( I == 9 ) template = 'output/data/spec1.'
    if ( I == 10 ) template = 'output/data/spec2.'
    if ( I == 11 ) template = 'output/data/spec3.'
    if ( I == 12 ) template = 'output/data/spec4.'
    if ( I == 13 ) template = 'output/data/spec5.'
-   if ( I == 14 ) template = 'output/data/spec6.'
-   if ( I == 15 ) template = 'output/data/spec7.'
+   if ( I == 14 ) template = 'output/data/geff.'
 
    if ( iam < 10 ) then
       write(filename,'(a,i4,a,i1)') trim(template), frnum, '_', iam
@@ -323,10 +322,7 @@ do I = 1, 15
       open(unit=64,file=trim(filename),form='unformatted',status='new', &
            access='direct',recl=record_length)
    else if ( I == 14 ) then
-      open(unit=65,file=trim(filename),form='unformatted',status='new', &
-           access='direct',recl=record_length)
-   else if ( I == 15 ) then
-      open(unit=66,file=trim(filename),form='unformatted',status='new', &
+      open(unit=58,file=trim(filename),form='unformatted',status='new', &
            access='direct',recl=record_length)
    endif
 
@@ -380,7 +376,7 @@ drag_factor = reallyadrag !1.0e-2
 time1 = mpi_wtime()
 
 do tstep = tstart, tstop          ! Start timestep loop
-
+   call gamma_eff
    call delta
 
    dt = 0.5 * dt
@@ -496,6 +492,7 @@ close(54)
 close(55)
 close(56)
 close(57)
+close(58)
 
 do M = 1, num_species
    close( 60 + M - 1)

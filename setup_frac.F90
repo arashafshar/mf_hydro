@@ -59,7 +59,8 @@ real, dimension(numr_dd,numz_dd,numphi) :: s, t, a
 common /kinematic/ s, t, a
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 real :: phi_com, R_com, R_com_inv
 real, dimension(3,3) :: com
@@ -85,8 +86,10 @@ common /timestep/ dt, time, dt_visc, tstep
 real :: pin, gamma, kappa1, kappa2, gammainv 
 common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
 
-real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2   !bipoly 
-common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2
+real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2  !bipoly 
+real, dimension(num_species) :: gammainit
+common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, &
+       gamma2, gammainit
 
 integer :: isoadi, call_pot, zero_out
 common /flags/ isoadi, call_pot, zero_out

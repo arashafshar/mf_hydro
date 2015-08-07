@@ -33,7 +33,8 @@ real, dimension(numr_dd,numz_dd,numphi) :: p, tau
 common /thermo/ p, tau
 
 real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
-common /multispecies/ species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 
 real :: densmin, taumin, vmax, constp
 common /limits/ densmin, taumin, vmax, constp
