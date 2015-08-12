@@ -32,8 +32,11 @@ common /grid/ rhf, r, rhfinv, rinv, zhf, phi
 real, dimension(numphi) :: cos_cc, sin_cc, cos_vc, sin_vc
 common /trig/ cos_cc, sin_cc, cos_vc, sin_vc
 
-real :: pin, gamma, kappa1, kappa2, gammainv
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
+real, dimension(4) :: np
+real, dimension(4) :: kappa
+real, dimension(num_species) :: gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 real :: dr, dz, dphi, drinv, dzinv, dphiinv
 common /coord_differentials/ dr, dz, dphi,                             &

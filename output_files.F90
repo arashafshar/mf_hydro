@@ -66,6 +66,7 @@ call output_kernel(jn, record_number, 57 )
 
 call output_kernel(gammaeff, record_number, 58 )
 
+call output_kernel(p, record_number, 59 )
 
 do M = 1, num_species
    call output_kernel(species(:,:,:,M), record_number, 60 + M - 1)

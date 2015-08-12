@@ -255,7 +255,7 @@ inquire(iolength=record_length) dummy
 
 
 ! Specify output files for different parameters (and up to 7 species)
-do I = 1, 14
+do I = 1, 15
 
    if ( I == 1 ) template = 'output/data/frame.'
    if ( I == 2 ) template = 'output/data/frac1.'
@@ -271,6 +271,7 @@ do I = 1, 14
    if ( I == 12 ) template = 'output/data/spec4.'
    if ( I == 13 ) template = 'output/data/spec5.'
    if ( I == 14 ) template = 'output/data/geff.'
+   if ( I == 15 ) template = 'output/data/pres.'
 
    if ( iam < 10 ) then
       write(filename,'(a,i4,a,i1)') trim(template), frnum, '_', iam
@@ -324,6 +325,9 @@ do I = 1, 14
    else if ( I == 14 ) then
       open(unit=58,file=trim(filename),form='unformatted',status='new', &
            access='direct',recl=record_length)
+   else if ( I == 15 ) then
+      open(unit=59,file=trim(filename),form='unformatted',status='new', &
+           access='direct',recl=record_length)
    endif
 
    call mpi_barrier(MPI_COMM_WORLD, ierror)
@@ -376,7 +380,6 @@ drag_factor = reallyadrag !1.0e-2
 time1 = mpi_wtime()
 
 do tstep = tstart, tstop          ! Start timestep loop
-   call gamma_eff
    call delta
 
    dt = 0.5 * dt
@@ -493,6 +496,7 @@ close(55)
 close(56)
 close(57)
 close(58)
+close(59)
 
 do M = 1, num_species
    close( 60 + M - 1)

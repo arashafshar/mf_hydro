@@ -18,7 +18,7 @@ include 'mpif.h'
 !   m(J,K,L,I)  =  rho (I,J,K) *  vol(I,J,K) * f(I,J,K,L)
 ! 
 !                        SUM(i=1,num_species)  m(J,K,L,I) * gamma(I)
-!   gamma_eff(J,K,L)  =  -------------------------------------------
+!   gammaeff(J,K,L)  =  -------------------------------------------
 !                           SUM(i=1,num_species)   m(J,K,L,I)
 !
     
@@ -29,10 +29,11 @@ include 'mpif.h'
 real, dimension(numr_dd,numz_dd,numphi) :: pot, rho
 common /poisson/ pot, rho
 
-real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2  !bipoly 
+real, dimension(4) :: np
+real, dimension(4) :: kappa
 real, dimension(num_species) :: gammainit
-common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, &
-       gamma2, gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 real :: dr, dz, dphi, drinv, dzinv, dphiinv
 common /coord_differentials/ dr, dz, dphi, drinv, dzinv, dphiinv

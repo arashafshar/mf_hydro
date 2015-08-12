@@ -45,8 +45,11 @@ real, dimension(numz_dd) :: zhf
 real, dimension(numphi) :: phi
 common /grid/ rhf, r, rhfinv, rinv, zhf, phi
 
-real :: pin, gamma, kappa1, kappa2, gammainv
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
+real, dimension(4) :: np
+real, dimension(4) :: kappa
+real, dimension(num_species) :: gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 logical :: iam_on_top, iam_on_bottom, iam_on_axis,                      &
            iam_on_edge, iam_root
@@ -69,6 +72,9 @@ common /processor_grid/ iam, numprocs, iam_on_top,                      &
                         row_num, pe_grid, iam_root,                     &
                         REAL_SIZE, INT_SIZE
 
+real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 !*
 !************************************************************************
 !*
@@ -80,7 +86,7 @@ real, dimension(4) :: diag_sum, diag_summed
 
 real, dimension(3) :: divider, side
 
-real :: gammam1inv, test, eavg1, eavg2
+real :: test, eavg1, eavg2
 
 integer, dimension(numr_dd,numz_dd,numphi) :: boundary
 
@@ -115,7 +121,6 @@ divider(1) = syscom(1)*(1.0-q) + rholoc1(1)*cos(rholoc1(3))*q
 divider(2) = syscom(2)*(1.0-q) + rholoc1(1)*sin(rholoc1(3))*q
 divider(3) = syscom(3)*(1.0-q) + rholoc1(2)*q
 side = 0.0
-gammam1inv = 1.0 / (gamma - 1.0)
 test = 0.0
 eavg1 = 0.0
 eavg2 = 0.0
@@ -148,7 +153,7 @@ enddo
 do L = philwb, phiupb
    do K = zlwb, zupb
       do J = rlwb, rupb
-               e(J,K,L) = factor*rhf(J)*( p(J,K,L)*gammam1inv +    &
+               e(J,K,L) = factor*rhf(J)*( p(J,K,L)/(gammaeff(J,K,L)-1.0) +    &
                           rho_diag(J,K,L)*(potr(J,K,L) + 0.5*(     &
                           vr(J,K,L)*vr(J,K,L) +                    &
                           vphi(J,K,L)*vphi(J,K,L) +                &

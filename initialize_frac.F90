@@ -102,13 +102,11 @@ real :: dt, time, dt_visc
 integer :: tstep
 common /timestep/ dt, time, dt_visc, tstep
 
-real :: pin, gamma, kappa1, kappa2, gammainv
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
-
-real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2  !bipoly 
+real, dimension(4) :: np
+real, dimension(4) :: kappa
 real, dimension(num_species) :: gammainit
-common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, &
-       gamma2, gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 real :: densmin, taumin, vmax, constp
 common /limits/ densmin, taumin, vmax, constp
@@ -264,21 +262,11 @@ time = 0.0
 tstep = 0
 dt_visc = 0.0
 
-pin = 0.0
-gamma = 0.0
-kappa1 = 0.0
-kappa2 = 0.0
-gammainv = 0.0
-
-kappac1 = 0.0      !bipoly
-kappac2 = 0.0
+kappa = 0.0     !bipoly
+np = 0.0
+gammainit = 0.0
 rho_c1 = 0.0
 rho_c2 = 0.0            
-np1 = 0.0               
-np2 = 0.0 
-gamma1 = 0.0
-gamma2 = 0.0
-gammainit = 0.0
 
 densmin = 0.0
 taumin = 0.0

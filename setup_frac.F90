@@ -83,13 +83,11 @@ real :: dt, time, dt_visc
 integer :: tstep
 common /timestep/ dt, time, dt_visc, tstep
 
-real :: pin, gamma, kappa1, kappa2, gammainv 
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
-
-real :: kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, gamma2  !bipoly 
+real, dimension(4) :: np
+real, dimension(4) :: kappa
 real, dimension(num_species) :: gammainit
-common /bipoly/ kappac1, kappac2, rho_c1, rho_c2, np1, np2, gamma1, &
-       gamma2, gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 integer :: isoadi, call_pot, zero_out
 common /flags/ isoadi, call_pot, zero_out
@@ -203,23 +201,27 @@ character(len=150) :: conts8_file
 !                       self-gravity		for all k and l
 !                       potential of fluid
 !
-!  pin                  gamma            
-!  polytropic           polytropic      
-!  index                exponent        
+!  n(1)                         n(2) 
+!  Structural polytropic        Structural polytropic
+!  index of the core of         index of envelope of
+!  star1                        star1
+!
+!
+!  n(3)                         n(4) 
+!  Structural polytropic        Structural polytropic
+!  indx of the core of          indx of the envelope of
+!  star2                        star2
 !                                                            
 !
-! kappa1                        kappa2                        !bipoly 
+! kappa(1)                      kappa(2)                        !bipoly 
 ! polytropic constant for       polytropic constant for 
-! 0 <= phi < pi/2               pi/2 <= phi < 3 pi/2
-! 3 pi/2 <= phi < 0       
+! core, star1                   envelope, star1
+!        
 !
+! kappa(3)                      kappa(4)                        !bipoly 
+! polytropic constant for       polytropic constant for 
+! core, star2                   envelope, star2
 !                               
-! kappac1                       kappac2 
-! polytropic constant for       polytropic constant for 
-! the core                      the core
-! 0 <= phi < pi/2               pi/2 <= phi < 3 pi/2
-! 3 pi/2 <= phi < 0     
-!
 !
 ! rho_c1                        rho_c2
 ! threshold density above       threshold density above
@@ -227,10 +229,6 @@ character(len=150) :: conts8_file
 ! belongs to the core for       belongs to the core for
 ! star1                         star2
 !       
-!
-!  np1                          np2 
-!  Structural polytropic        Structural polytropic
-!  indx of both the core        indx of both the envelopes
 !
 !  omgfrm		intrvl			scfomega
 !  angular frequency	number of frames to	angular frequency of
@@ -297,15 +295,15 @@ if( iam_root ) then
 
    read(20,*) init_real(1:2)          !bipoly
    read(20,*) init_real(3:4)
-   read(20,*) init_real(15:16)
-   read(20,*) init_real(17:18)
-   read(20,*) init_real(19:20)
+   read(20,*) init_real(5:6)
+   read(20,*) init_real(7:8)
+   read(20,*) init_real(9:10)
 
-   read(20,*) init_real(5:7)
-   read(20,*) init_real(8:9)
-   read(20,*) init_real(10:11)
+   read(20,*) init_real(11:13)
+   read(20,*) init_real(14:15)
+   read(20,*) init_real(16:17)
    read(20,*) boundary_condition(1:3)
-   read(20,*) init_real(12:14)
+   read(20,*) init_real(18:20)
 
    close(20)
 endif
@@ -324,27 +322,34 @@ isoadi = init_int(6)
 call_pot = init_int(7)
 zero_out = init_int(8)
 
-pin = init_real(1)     !bipoly
-gamma = init_real(2)
-kappa1 = init_real(3)
-kappa2 = init_real(4)
-kappac1 = init_real(15)
-kappac2 = init_real(16)
-rho_c1 = init_real(17)
-rho_c2 = init_real(18)
-np1 = init_real(19)
-np2 = init_real(20)
+np(1) = init_real(1)     !bipoly
+np(2) = init_real(2)
+np(3) = init_real(3)
+np(4) = init_real(4)
+kappa(1) = init_real(5)
+kappa(2) = init_real(6)
+kappa(3) = init_real(7)
+kappa(4) = init_real(8)
+rho_c1 = init_real(9)
+rho_c2 = init_real(10)
 
-omega_frame = init_real(5)
-intrvl = init_real(6)
-scf_omega = init_real(7)
-vmax = init_real(8)
-constp = init_real(9)
-densmin = init_real(10)
-taumin = init_real(11)
-rho_boundary = init_real(12)
-q = init_real(13)
-viscosity = init_real(14)
+omega_frame = init_real(11)
+intrvl = init_real(12)
+scf_omega = init_real(13)
+
+vmax = init_real(14)
+constp = init_real(15)
+densmin = init_real(16)
+taumin = init_real(17)
+rho_boundary = init_real(18)
+q = init_real(19)
+viscosity = init_real(20)
+
+gammainit(1) = 1.0+1.0/np(1)
+gammainit(2) = 1.0+1.0/np(2)
+gammainit(3) = 1.0+1.0/np(3)
+gammainit(4) = 1.0+1.0/np(4)
+gammainit(5) = 5.0/3
 
 !  initialize the run parameters
 pi = acos(-1.0)
@@ -353,9 +358,6 @@ cirp = 2.0 * pi / scf_omega
 cfl_factor = 0.5
 vlim_factor = 0.5
 den_cutoff = 5.0e3 * densmin
-gammainv = 1.0 / gamma
-gamma1 = 1.0 + 1.0/np1        !bipoly
-gamma2 = 1.0 + 1.0/np2
 
 !  if running with pi or equaorial symmetry then the boundary
 !  condition at the bottom of the grid has to be a wall
@@ -599,11 +601,14 @@ if( iam_root ) then
    write(6,*) 'Zero out from j = 1 to j = ',zero_out
    write(6,*)
 
-   write(6,170) pin, gamma, kappa1, kappa2
+!   write(6) "np(1), np(2), np(3), np(4)"
+!   write(6) np(1), np(2), np(3), np(4)
 
-   write(6,*) kappac1, kappac2, rho_c1, rho_c2
+!   write(6) "kappa(1), kappa(2), kappa(3), kappa(4)"
+!   write(6) kappa(1), kappa(2), kappa(3), kappa(4)
 
-   write(6,*) np1, np2, gamma1, gamma2    !bipoly
+!   write(6) "rho_c1, rho_c2"
+!   write(6) rho_c1, rho_c2     !bipoly
 
    write(6,180) densmin, taumin, constp
  
@@ -656,7 +661,7 @@ else if(  model_type == 1 )  then
 !    endif
 
     open(unit=8,file=trim(conts8_file),form='unformatted', status='old')
-    read(8) s, t, a, rho, tau, pot, tempa, frac1, frac2, species
+    read(8) s, t, a, rho, tau, pot, tempa, frac1, frac2, species, gammaeff
     close(8)
    
    if( iam_root ) then

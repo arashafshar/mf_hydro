@@ -52,8 +52,11 @@ real :: dr, dz, dphi, drinv, dzinv, dphiinv
 common /coord_differentials/ dr, dz, dphi,                          &
         drinv, dzinv, dphiinv
 
-real :: pin, gamma, kappa1, kappa2, gammainv
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
+real, dimension(4) :: np
+real, dimension(4) :: kappa
+real, dimension(num_species) :: gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 real :: dt, time, dt_visc
 integer :: tstep
@@ -87,6 +90,11 @@ common /processor_grid/ iam, numprocs, iam_on_top,                   &
                         row_num, pe_grid, iam_root,                  &
                         REAL_SIZE, INT_SIZE
 
+real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
+
+
 !*
 !********************************************************************
 !*
@@ -95,7 +103,7 @@ common /processor_grid/ iam, numprocs, iam_on_top,                   &
 
 real, dimension(numr_dd,numz_dd,numphi) :: c, deltj,  deltk, deltl
 
-real :: adiso, vel, time_max, temp_max, dt_old
+real :: vel, time_max, temp_max, dt_old
 
 real, dimension(numprocs,8) :: global_diagnostics
 
@@ -115,6 +123,7 @@ integer, dimension(1) :: index
 
 integer, dimension(3) :: loc
 
+real, dimension(numr_dd,numz_dd,numphi) :: adiso
 !*
 !*
 !********************************************************************
@@ -132,7 +141,7 @@ index = 0
 
 ! get the limiting timestep from the diffusive viscous terms
 call visc_time
-
+call gamma_eff
 !   form the sound speed
 !
 !   c^2 = (dp / drho)|s = kappa gamma rho^(gamma-1) = gamma p / rho 
@@ -140,13 +149,13 @@ call visc_time
 !       = gamma (gamma-1) eps rho / rho = gamma (gamma-1) eps
 !
 adiso = 1.0
-if( isoadi == 2 .or. isoadi == 3 ) adiso = gamma
+if( isoadi == 2 .or. isoadi == 3 ) adiso = gammaeff
    ! isoadi is a relic from the hpf code that allowed isothermal
    ! or adiabatic equations of state
 do L = philwb, phiupb
    do K = zlwb, zupb
       do J = rlwb, rupb
-         c(J,K,L) = sqrt(adiso*p(J,K,L)/rho(J,K,L))
+         c(J,K,L) = sqrt(adiso(J,K,L)*p(J,K,L)/rho(J,K,L))
       enddo
    enddo
 enddo

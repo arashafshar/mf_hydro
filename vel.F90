@@ -54,8 +54,11 @@ common /grid/ rhf, r, rhfinv, rinv, zhf, phi
 real :: dr, dz, dphi, drinv, dzinv, dphiinv
 common /coord_differentials/ dr, dz, dphi, drinv, dzinv, dphiinv
 
-real :: pin, gamma, kappa1, kappa2, gammainv
-common /polytrope/ pin, gamma, kappa1, kappa2, gammainv
+real, dimension(4) :: np
+real, dimension(4) :: kappa
+real, dimension(num_species) :: gammainit
+real :: rho_c1, rho_c2
+common /bipoly/ np, kappa, gammainit, rho_c1, rho_c2
 
 real :: pi, grav, cfl_factor, den_cutoff, vlim_factor, viscosity
 common /constants/ pi, grav, cfl_factor, den_cutoff, vlim_factor, &
@@ -89,6 +92,9 @@ common /processor_grid/ iam, numprocs, iam_on_top,           &
                         row_num, pe_grid, iam_root,          &
                         REAL_SIZE, INT_SIZE
 
+real, dimension(numr_dd,numz_dd,numphi,num_species) :: species
+real, dimension(numr_dd,numz_dd,numphi) :: gammaeff
+common /multispecies/ species, gammaeff
 !*
 !********************************************************************
 !*
@@ -119,11 +125,13 @@ ierror = 0
 !   setup for the velocity limiting:
 !   if this is a polytropic evloution use max sound speed to limit
 !   the velocity of low density material
-emax = maxval(p(rlwb:rupb,zlwb:zupb,:)/rho(rlwb:rupb,zlwb:zupb,:))
+call gamma_eff
+
+emax = maxval(gammaeff(rlwb:rupb,zlwb:zupb,:)*p(rlwb:rupb,zlwb:zupb,:)/rho(rlwb:rupb,zlwb:zupb,:))
 call mpi_reduce(emax,global_emax,1,REAL_SIZE,MPI_MAX,root,            &
                 MPI_COMM_WORLD,ierror) 
 if( iam_root ) then
-   vlim = vlim_factor * sqrt(gamma*global_emax)
+   vlim = vlim_factor * sqrt(global_emax)
 endif
 call mpi_bcast(vlim,1,REAL_SIZE,root,MPI_COMM_WORLD,ierror)
 

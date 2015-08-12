@@ -140,7 +140,7 @@ endif
 open(unit=12,file=trim(conts12_file),form='unformatted', status='unknown')
 !open(unit=12,file=trim(conts12_file),form='unformatted')
 
-write(12) s, t, a, rho, tau, pot, tempa, frac1, frac2, species
+write(12) s, t, a, rho, tau, pot, tempa, frac1, frac2, species, gammaeff
 
 if( iam_root ) then
    open(unit=13,file='output/conts/fort.13',form='unformatted',status='unknown')
