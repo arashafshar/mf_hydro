@@ -9,17 +9,13 @@ include 'runhydro.h'
 include 'mpif.h'
 !********************************************************************************
 !*
-!   Calculates effective gamma in each cell, which is a mass weighed average
+!   Calculates effective gamma in each cell 
 !   
-!                            species(J,K,L,I) 
-!   f(J,K,L,I)  =  --------------------------------------  
-!                  SUM(i=1,num_species) species(J,K,L,I) 
+!                        SUM(i=1,num_species-1)  species(J,K,L,I) * gamma(I)
+!   gammaeff(J,K,L)  =  ---------------------------------------------------
+!                           SUM(i=1,num_species-1)   species(J,K,L,I)
 !
-!   m(J,K,L,I)  =  rho (I,J,K) *  vol(I,J,K) * f(I,J,K,L)
-! 
-!                        SUM(i=1,num_species)  m(J,K,L,I) * gamma(I)
-!   gammaeff(J,K,L)  =  -------------------------------------------
-!                           SUM(i=1,num_species)   m(J,K,L,I)
+!   gamma(num_species) is assumed to be vacuum and neglected in the calculations
 !
     
 !********************************************************************************
@@ -51,52 +47,26 @@ common /multispecies/ species, gammaeff
 !***********************************************************************
 !*
 !*  Local Variable
-real, dimension(numr_dd,numz_dd,numphi,num_species) :: massys 
-real, dimension(numr_dd,numz_dd,numphi) :: sumspecies
-
-real :: fractional, num, den
+real :: num, den
 integer :: I, J, K, L
 
-!array for the mass of each passive scalar in species
-
-
-massys = 0.0
-sumspecies = 0.0
 gammaeff = 0.0
-
-do L = philwb, phiupb
-   do K = zlwb-1, zupb+1
-      do J = rlwb-1, rupb+1
-         do I = 1, num_species
-            sumspecies(J,K,L)=sumspecies(J,K,L)+species(J,K,L,I)            
-         enddo
-      enddo
-   enddo
-enddo
-
-
-do L = philwb, phiupb
-   do K = zlwb-1, zupb+1
-      do J = rlwb-1, rupb+1
-         do I = 1, num_species
-            fractional = species(J,K,L,I)/sumspecies(J,K,L)
-            massys(J,K,L,I) = rho(J,K,L) * rhf(J) * dr * dz * dphi * fractional
-         enddo
-      enddo
-   enddo
-enddo
-
 
 do L = philwb, phiupb
    do K = zlwb-1, zupb+1
       do J = rlwb-1, rupb+1
          num = 0.0
          den = 0.0
-         do I = 1, num_species
-            num = num + massys(J,K,L,I) * gammainit(I)
-            den = den + massys(J,K,L,I)
+! Sum over all species excluding vacuum
+         do I = 1, num_species-1
+            num = num + species(J,K,L,I) * gammainit(I)
+            den = den + species(J,K,L,I)
          enddo
-         gammaeff(J,K,L) = num / den
+         if (den.le.0.0) then
+            gammaeff(J,K,L) = gammainit(num_species)
+         else
+            gammaeff(J,K,L) = num / den
+         endif
       enddo
    enddo
 enddo
